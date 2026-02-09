@@ -3,7 +3,13 @@ use core::ops::Index;
 use bytemuck::{Pod, Zeroable};
 use existant_core::{Addition, AssociativeOver, ClosedUnder, CommutativeOver, Identity, Inverse, Multiplication, Ring, Semimodule, Semiring, Subtraction};
 use existant_geoalg_macros::matrix_multiplication;
-use crate::{matrix::{Matrix, Matrix2x3, Matrix3x2, SquareMatrix}, vectors::Vector2};
+use crate::{matrix::{Matrix, Matrix3x2, SquareMatrix}, vectors::Vector2};
+
+/// Represents a matrix with 2 columns and 2 rows.
+/// ```
+/// ┌a, c┐
+/// └b, d┘
+/// ```
 #[matrix_multiplication]
 #[matrix_multiplication(columns(x, y, z), self_rows(x, y), ty(Matrix3x2), output(Matrix3x2))]
 #[repr(C)]

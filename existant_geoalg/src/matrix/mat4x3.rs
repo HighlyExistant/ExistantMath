@@ -2,6 +2,12 @@ use bytemuck::{Pod, Zeroable};
 use existant_core::{Addition, Field, Identity, Multiplication, Ring};
 use crate::{matrix::{Matrix, Matrix3x3, Matrix3x4, SolveEquations, SquareMatrix}, vectors::{Vector3, Vector4}};
 
+/// Represents a matrix with 4 columns and 3 rows.
+/// ```
+/// ┌a, d, g, j┐
+/// │b, e, h, k│
+/// └c, f, i, l┘
+/// ```
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Matrix4x3<T: Ring> {

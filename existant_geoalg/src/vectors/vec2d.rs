@@ -221,3 +221,16 @@ impl<T> From<(T, T)> for Vector2<T> {
         Self::new(value.0, value.1)
     }
 }
+
+pub type I8Vec2 = Vector2<i8>;
+pub type I16Vec2 = Vector2<i16>;
+pub type I32Vec2 = Vector2<i32>;
+pub type I64Vec2 = Vector2<i64>;
+pub type I128Vec2 = Vector2<i128>;
+pub type U8Vec2 = Vector2<u8>;
+pub type U16Vec2 = Vector2<u16>;
+pub type U32Vec2 = Vector2<u32>;
+pub type U64Vec2 = Vector2<u64>;
+pub type U128Vec2 = Vector2<u128>;
+pub type FVec2 = Vector2<f32>;
+pub type DVec2 = Vector2<f64>;

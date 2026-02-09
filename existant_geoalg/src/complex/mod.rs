@@ -1,7 +1,12 @@
 use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, Identity, Inverse, Multiplication, Operator};
 
 use crate::vectors::{Vector2};
-/// Represents a complex number with 
+mod quaternion;
+pub use quaternion::*;
+/// Represents a complex number a + bi.
+/// # Axioms
+/// The imaginary part of the complex number
+#[derive(Clone, Copy, Default, PartialEq, Eq)]
 pub struct Complex<T: BasicField> {
     inner: Vector2<T>,
 }
@@ -59,33 +64,57 @@ impl<T: BasicField + Identity<Addition>> Identity<Addition> for Complex<T> {
 }
 
 impl<T: BasicField> Complex<T>  {
-    const BASIS_X: Vector2<T> = Vector2::right();
-    const BASIS_Y: Vector2<T> = Vector2::top();
     pub const fn new(real: T, imaginary: T) -> Self {
         Self { inner: Vector2::new(real, imaginary) }
     }
     #[inline]
-    pub const fn real(&self) -> T {
+    pub const fn r(&self) -> T {
         self.inner.x
     }
     #[inline]
-    pub const fn imaginary(&self) -> T {
+    pub const fn i(&self) -> T {
         self.inner.y
     }
 }
 
-impl<T: BasicField + core::ops::Add<Output = T>> core::ops::Add for Complex<T> {
+impl<T: BasicField> core::ops::Add for Complex<T> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
         Self::new(self.inner.x.add(rhs.inner.x), self.inner.y.add(rhs.inner.y))
     }
 }
-impl<T: BasicField + core::ops::Mul<Output = T>> core::ops::Mul for Complex<T> {
+impl<T: BasicField> core::ops::Sub for Complex<T> {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::new(self.inner.x.sub(rhs.inner.x), self.inner.y.sub(rhs.inner.y))
+    }
+}
+impl<T: BasicField> core::ops::Mul<T> for Complex<T> {
+    type Output = Self;
+    fn mul(self, rhs: T) -> Self::Output {
+        Self::new(
+            self.inner.x*rhs,
+            self.inner.y*rhs,
+        )
+    }
+}
+impl<T: BasicField> core::ops::Mul for Complex<T> {
     type Output = Self;
     fn mul(self, rhs: Self) -> Self::Output {
         Self::new(
             self.inner.x*rhs.inner.x - self.inner.y*rhs.inner.y,
             self.inner.x*rhs.inner.y + rhs.inner.x*self.inner.y,
+        )
+    }
+}
+impl<T: BasicField> core::ops::Mul<Quaternion<T>> for Complex<T> {
+    type Output = Quaternion<T>;
+    fn mul(self, rhs: Quaternion<T>) -> Self::Output {
+        Quaternion::new(
+            self.r()*rhs.r() - self.i()*rhs.i(), 
+            self.r()*rhs.i() + self.i()*rhs.r(), 
+            self.r()*rhs.j() - self.i()*rhs.k(), 
+            self.r()*rhs.k() + self.i()*rhs.j()
         )
     }
 }

@@ -3,6 +3,14 @@ use existant_core::{Ring, Semiring};
 use existant_geoalg_macros::matrix_multiplication;
 
 use crate::{matrix::{Matrix, Matrix3x3, Matrix2x2, Matrix3x2}, vectors::{Vector2, Vector3}};
+
+
+/// Represents a matrix with 2 columns and 3 rows.
+/// ```
+/// ┌a, d┐
+/// │b, e│
+/// └c, f┘
+/// ```
 #[matrix_multiplication(columns(x, y), self_rows(x, y), ty(Matrix2x2), output(Matrix2x2))]
 #[matrix_multiplication(self_rows(x, y, z), columns(x, y, z), ty(Matrix3x2), output(Matrix3x3))]
 #[repr(C)]

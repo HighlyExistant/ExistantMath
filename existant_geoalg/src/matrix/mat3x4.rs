@@ -4,6 +4,13 @@ use existant_geoalg_macros::matrix_multiplication;
 
 use crate::{matrix::{Matrix, Matrix2x3, Matrix2x4}, vectors::{Vector3, Vector4}};
 
+/// Represents a matrix with 3 columns and 4 rows.
+/// ```
+/// ┌a, e, i┐
+/// │b, f, j│
+/// │c, g, k│
+/// └d, h, l┘
+/// ```
 #[matrix_multiplication(columns(x, y), self_rows(x, y, z, w), ty(Matrix2x3), output(Matrix2x4))]
 #[matrix_multiplication(columns(x, y, z), self_rows(x, y, z, w), ty(Matrix3x4), output(Matrix3x4))]
 #[repr(C)]

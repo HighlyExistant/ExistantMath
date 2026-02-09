@@ -6,6 +6,14 @@ use existant_core::{Addition, AssociativeOver, ClosedUnder, CommutativeOver, Ide
 use existant_geoalg_macros::matrix_multiplication;
 
 use crate::{matrix::{Matrix, Matrix2x2, Matrix2x3, Matrix2x4, Matrix3x3, Matrix3x4, Matrix4x3, SquareMatrix}, vectors::{Vector3, Vector4}};
+
+/// Represents a matrix with 4 columns and 4 rows.
+/// ```
+/// ┌a, e, i, m┐
+/// │b, f, j, n│
+/// │c, g, k, o│
+/// └d, h, l, p┘
+/// ```
 #[matrix_multiplication]
 #[matrix_multiplication(columns(x, y), self_rows(x, y, z, w), ty(Matrix2x4), output(Matrix2x4))]
 #[matrix_multiplication(columns(x, y, z), self_rows(x, y, z, w), ty(Matrix3x4), output(Matrix3x4))]

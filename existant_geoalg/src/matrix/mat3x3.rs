@@ -6,6 +6,12 @@ use existant_geoalg_macros::matrix_multiplication;
 
 use crate::{matrix::{Matrix, Matrix2x2, Matrix2x3, SquareMatrix}, vectors::Vector3};
 
+/// Represents a matrix with 3 columns and 3 rows.
+/// ```
+/// ┌a, d, g┐
+/// │b, e, h│
+/// └c, f, i┘
+/// ```
 #[matrix_multiplication]
 #[matrix_multiplication(columns(x, y), self_rows(x, y, z), ty(Matrix2x3), output(Matrix2x3))]
 #[repr(C)]

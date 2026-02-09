@@ -149,35 +149,45 @@ impl<T> Vector4<T> {
         self.w
     }
     
-    /// Returns a vector pointing to the right of the graph <1, 0>
+    /// Returns a vector pointing to the right of the graph <1, 0, 0, 0>
     pub const fn right() -> Self 
         where T: Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
     }
-    /// Returns a vector pointing to the left of the graph <-1, 0>
+    /// Returns a vector pointing to the left of the graph <-1, 0, 0, 0>
     pub fn left() -> Self 
         where T: core::ops::Neg<Output = T> + Identity<Multiplication> + Identity<Addition> {
         Self::new(-<T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
     }
-    /// Returns a vector pointing to the left of the graph <0, 1>
+    /// Returns a vector pointing to the left of the graph <0, 1, 0, 0>
     pub const fn top() -> Self 
         where T: Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Addition>>::IDENTITY, <T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
     }
-    /// Returns a vector pointing to the left of the graph <0, -1>
+    /// Returns a vector pointing to the left of the graph <0, -1, 0, 0>
     pub fn bottom() -> Self 
         where T: core::ops::Neg<Output = T> + Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Addition>>::IDENTITY, -<T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
     }
-    /// Returns a vector pointing to forward of the graph <0, 0, 1>
+    /// Returns a vector pointing to forward of the graph <0, 0, 1, 0>
     pub const fn forward() -> Self 
         where T: Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
     }
-    /// Returns a vector pointing to backward of the graph <0, 0, -1>
+    /// Returns a vector pointing to backward of the graph <0, 0, -1, 0>
     pub fn backward() -> Self 
         where T: core::ops::Neg<Output = T> + Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Addition>>::IDENTITY, -<T as Identity<Addition>>::IDENTITY, -<T as Identity<Multiplication>>::IDENTITY, <T as Identity<Addition>>::IDENTITY)
+    }
+    /// Returns a vector pointing forwards in time of the graph <0, 0, 0, 1>
+    pub const fn forward_time() -> Self 
+        where T: Identity<Multiplication> + Identity<Addition> {
+        Self::new(<T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Multiplication>>::IDENTITY)
+    }
+    /// Returns a vector pointing backwards in time of the graph <0, 0, 0, -1>
+    pub fn backward_time() -> Self 
+        where T: core::ops::Neg<Output = T> + Identity<Multiplication> + Identity<Addition> {
+        Self::new(<T as Identity<Addition>>::IDENTITY, -<T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, -<T as Identity<Multiplication>>::IDENTITY)
     }
 
     #[inline(always)]
@@ -230,3 +240,16 @@ impl<T> From<(T, T, T, T)> for Vector4<T> {
         Self::new(value.0, value.1, value.2, value.3)
     }
 }
+
+pub type I8Vec4 = Vector4<i8>;
+pub type I16Vec4 = Vector4<i16>;
+pub type I32Vec4 = Vector4<i32>;
+pub type I64Vec4 = Vector4<i64>;
+pub type I128Vec4 = Vector4<i128>;
+pub type U8Vec4 = Vector4<u8>;
+pub type U16Vec4 = Vector4<u16>;
+pub type U32Vec4 = Vector4<u32>;
+pub type U64Vec4 = Vector4<u64>;
+pub type U128Vec4 = Vector4<u128>;
+pub type FVec4 = Vector4<f32>;
+pub type DVec4 = Vector4<f64>;

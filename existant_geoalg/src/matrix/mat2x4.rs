@@ -3,6 +3,13 @@ use existant_core::{Ring, Semiring};
 
 use crate::{matrix::{Matrix, Matrix3x4}, vectors::Vector4};
 
+/// Represents a matrix with 2 columns and 4 rows.
+/// ```
+/// ┌a, e┐
+/// │b, f│
+/// │c, g│
+/// └d, h┘
+/// ```
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Matrix2x4<T: Semiring> {

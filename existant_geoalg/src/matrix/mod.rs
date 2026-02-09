@@ -16,6 +16,7 @@ pub use mat2x4::*;
 pub use mat4x3::*;
 pub use mat4x4::*;
 
+/// Represents an NxM matrix.
 pub trait Matrix 
     where <Self::Vector as Semimodule>::Scalar: Ring {
     type Vector: Module;
@@ -23,6 +24,7 @@ pub trait Matrix
     fn transpose(&self) -> Self::TransposeMatrix;
     
 }
+/// Represents an NxN matrix.
 pub trait SquareMatrix: Matrix<TransposeMatrix = Self> {
     fn minor(&self, column: usize, row: usize) -> <Self::Vector as Semimodule>::Scalar;
     fn cofactor(&self, column: usize, row: usize) -> <Self::Vector as Semimodule>::Scalar;
