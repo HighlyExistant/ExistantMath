@@ -1,0 +1,9 @@
+[package]
+name = "existant_geoalg"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bytemuck = "1.25.0"
+existant_core ={ path = "../existant_core"}
+existant_geoalg_macros ={ path = "existant_geoalg_macros"}
