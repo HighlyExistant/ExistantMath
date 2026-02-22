@@ -1,3 +1,6 @@
 pub mod vectors;
 pub mod matrix;
-pub mod complex;
+pub mod rotors;
+pub mod geometry;
+pub mod animation;
+pub mod mappings;

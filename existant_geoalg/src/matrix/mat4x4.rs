@@ -151,17 +151,31 @@ impl<T: Ring + core::ops::Mul<Output = T>> core::ops::Mul<T> for Matrix4x4<T> {
 }
 
 impl<T: Ring + core::ops::Mul<Output = T> + core::ops::Add<Output = T>> core::ops::Mul<Vector4<T>> for Matrix4x4<T>  {
-    /// # Multiplying Matrix4 with Vector4
+    /// # Multiplying [`Matrix4x4`] with [`Vector4`]
     /// 
-    /// when you multiply a Matrix4 with a Vector4 we treat the vector
-    /// as a 4x4 matrix * 4x1 matrix since it is impossible to multiply
-    /// a 4x1 matrix * 4x4 matrix since matrix multiplication is not commutative.
+    /// when you multiply a [`Matrix4x4`] with a [`Vector4`] we treat the vector
+    /// as a 1x4 matrix * 4x4 matrix.
     fn mul(self, rhs: Vector4<T>) -> Self::Output {
         Vector4::<T>::new(
             self.x.x() * rhs.x() + self.y.x() * rhs.y() + self.z.x() * rhs.z() + self.w.x() * rhs.w(),
             self.x.y() * rhs.x() + self.y.y() * rhs.y() + self.z.y() * rhs.z() + self.w.y() * rhs.w(),
             self.x.z() * rhs.x() + self.y.z() * rhs.y() + self.z.z() * rhs.z() + self.w.z() * rhs.w(),
             self.x.w() * rhs.x() + self.y.w() * rhs.y() + self.z.w() * rhs.z() + self.w.w() * rhs.w()
+        )
+    }
+    type Output = Vector4<T>;
+}
+impl<T: Ring + core::ops::Mul<Output = T> + core::ops::Add<Output = T>> core::ops::Mul<Matrix4x4<T>> for Vector4<T>  {
+    /// # Multiplying [`Vector4`] with [`Matrix4x4`]
+    /// 
+    /// when you multiply a [`Vector4`] with a [`Matrix4x4`] we treat the vector
+    /// as a 1x4 matrix * 4x4 matrix.
+    fn mul(self, rhs: Matrix4x4<T>) -> Self::Output {
+        Vector4::<T>::new(
+            rhs.x.x() * self.x() + rhs.x.y() * self.y() + rhs.x.z() * self.z() + rhs.x.w() * self.w(),
+            rhs.y.x() * self.x() + rhs.y.y() * self.y() + rhs.y.z() * self.z() + rhs.y.w() * self.w(),
+            rhs.z.x() * self.x() + rhs.z.y() * self.y() + rhs.z.z() * self.z() + rhs.z.w() * self.w(),
+            rhs.w.x() * self.x() + rhs.w.y() * self.y() + rhs.w.z() * self.z() + rhs.w.w() * self.w()
         )
     }
     type Output = Vector4<T>;

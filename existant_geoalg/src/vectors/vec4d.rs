@@ -2,7 +2,7 @@ use std::ops::{Index, IndexMut};
 
 use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::vectors::{InnerProductSpace, MetricSpace, NormedVectorSpace};
+use crate::{rotors::Quaternion, vectors::{InnerProductSpace, MetricSpace, NormedVectorSpace}};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -100,31 +100,12 @@ impl<T: BasicField + FloatingPoint> NormedVectorSpace for Vector4<T> {
     }
 }
 
-// impl<T: BasicField + FloatingPoint> GrassmanAlgebra for Vector4D<T> {
-//     type Bivector = Vector4D<T>;
-//     /// The 3d wedge product returns a vector which is perpendicular
-//     /// to the 2 vectors provided.
-//     fn wedge_product(&self, rhs: Self) -> Self::Bivector {
-//         Self::new(
-//             self.x*rhs.y - self.y*rhs.x,
-//             self.z*rhs.x - self.x*rhs.z,
-//             self.y*rhs.z - self.z*rhs.y,
-//         )
-//     }
-// }
-
 impl<T: BasicField + FloatingPoint> MetricSpace for Vector4<T> {
     type Distance = T;
     fn distance(&self, other: Self) -> Self::Distance {
         (self.clone() - other).magnitude()
     }
 }
-
-// impl<T: BasicField + FloatingPoint> GeometricAlgebra for Vector4D<T> {
-//     fn geometric_product(&self, other: Self) -> (Self::Scalar, Self::Bivector) {
-//         (self.inner_product(other), self.wedge_product(other))
-//     }
-// }
 
 impl<T> Vector4<T> {
     #[inline]
@@ -238,6 +219,19 @@ impl<T: core::ops::Div<Output = T>> core::ops::Div for Vector4<T> {
 impl<T> From<(T, T, T, T)> for Vector4<T> {
     fn from(value: (T, T, T, T)) -> Self {
         Self::new(value.0, value.1, value.2, value.3)
+    }
+}
+
+impl<T: BasicField> From<Quaternion<T>> for Vector4<T> {
+    fn from(value: Quaternion<T>) -> Self {
+        Self::new(value.r(), value.i(), value.j(), value.k())
+    }
+}
+
+impl<T: BasicField> core::ops::Mul<Quaternion<T>> for Vector4<T> {
+    type Output = Vector4<T>;
+    fn mul(self, rhs: Quaternion<T>) -> Self::Output {
+        Vector4::from(Quaternion::from(self)*rhs)
     }
 }
 

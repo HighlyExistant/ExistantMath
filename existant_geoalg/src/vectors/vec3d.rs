@@ -1,8 +1,8 @@
 use std::ops::{Index, IndexMut};
 
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, Field, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace, ScalarMultiplication};
+use crate::vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -188,6 +188,12 @@ impl<T: Semiring<Multiplication, Addition>> core::ops::Mul<T> for Vector3<T> {
     type Output = Self;
     fn mul(self, rhs: T) -> Self::Output {
         self.scalar_multiplication(rhs)
+    }
+}
+impl<T: core::ops::Neg<Output = T>> core::ops::Neg for Vector3<T> {
+    type Output = Self;
+    fn neg(self) -> Self::Output {
+        Self::new(self.x.neg(), self.y.neg(), self.z.neg())
     }
 }
 impl<T: core::ops::Add<Output = T>> core::ops::Add for Vector3<T> {

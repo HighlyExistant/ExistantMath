@@ -1,14 +1,24 @@
 use std::ops::{Index, IndexMut};
 
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, Field, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
+use bytemuck::{Pod, Zeroable};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, Bounds, ClosedUnder, CommutativeOver, Distributive, Field, FloatingPoint, FromPrimitive, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace, ScalarMultiplication};
+use crate::{rotors::Complex, vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace}};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Vector2<T> {
     pub x: T,
     pub y: T
+}
+
+unsafe impl<T: Identity<Addition>> Zeroable for Vector2<T> {
+    fn zeroed() -> Self {
+        Self::new(<T as Identity<Addition>>::IDENTITY,<T as Identity<Addition>>::IDENTITY)
+    }
+}
+unsafe impl<T: Identity<Addition> + Copy + 'static> Pod for Vector2<T> {
+
 }
 
 impl<T> Index<usize> for Vector2<T> {
@@ -111,15 +121,17 @@ impl<T: BasicField + FloatingPoint> GeometricAlgebra for Vector2<T> {
 }
 
 impl<T> Vector2<T> {
+    /// Creates a new 2 Dimensional Vector type
     #[inline]
     pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
-
+    /// x component of a vector <x, y>
     pub const fn x(&self) -> T 
         where T: Copy {
         self.x
     }
+    /// y component of a vector <x, y>
     pub const fn y(&self) -> T 
         where T: Copy {
         self.y
@@ -145,16 +157,22 @@ impl<T> Vector2<T> {
         where T: core::ops::Neg<Output = T> + Identity<Multiplication> + Identity<Addition> {
         Self::new(<T as Identity<Addition>>::IDENTITY, -<T as Identity<Multiplication>>::IDENTITY)
     }
-
+    // returns the current vector rotated 90 degrees
+    pub fn perpendicular(self) -> Self 
+        where T: core::ops::Neg<Output = T> {
+        Self::new(-self.y, self.x)
+    }
+    /// The dimension of the vector type
     #[inline(always)]
     pub const fn len(&self) -> usize {
         2
     }
-
+    /// converts the vector type into a slice
     pub fn as_slice(&self) -> &[T] {
         unsafe { core::slice::from_raw_parts(self as *const _ as _, self.len()) }
     }
     
+    /// converts the vector type into a mutable slice
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         unsafe { core::slice::from_raw_parts_mut(self as *mut _ as _, self.len()) }
     }
@@ -174,8 +192,18 @@ impl<T: BasicField + FloatingPoint> Vector2<T> {
         self.sin2(Self::right())
     }
     pub fn tan(&self)-> T {
-        let normalize = self.normalize();
-        normalize.y.div(normalize.x)
+        self.y.div(self.x)
+    }
+    pub fn cot(&self)-> T {
+        self.x.div(self.y)
+    }
+    /// Returns the slope formed by the two points, if
+    /// the x directions aren't equal. Returns None otherwise.
+    pub fn direction(self, p: Self)-> Option<T> {
+        if self.x == p.x {
+            return None;
+        }
+        Some((self-p).tan())
     }
     pub fn angle(&self) -> T {
         self.cos().acos()
@@ -219,6 +247,36 @@ impl<T: core::ops::Div<Output = T>> core::ops::Div for Vector2<T> {
 impl<T> From<(T, T)> for Vector2<T> {
     fn from(value: (T, T)) -> Self {
         Self::new(value.0, value.1)
+    }
+}
+
+impl<T: BasicField> From<Complex<T>> for Vector2<T> {
+    fn from(value: Complex<T>) -> Self {
+        Self::new(value.r(), value.i())
+    }
+}
+
+impl<T: BasicField> core::ops::Mul<Complex<T>> for Vector2<T> {
+    type Output = Vector2<T>;
+    fn mul(self, rhs: Complex<T>) -> Self::Output {
+        Vector2::from(Complex::from(self)*rhs)
+    }
+}
+
+impl<T: Bounds> Bounds for Vector2<T> {
+    const MIN: Self = Vector2::new(T::MIN, T::MIN);
+    const MAX: Self = Vector2::new(T::MAX, T::MAX);
+    fn min(self, other: Self) -> Self {
+        Self::new(
+            self.x.min(other.x), 
+            self.y.min(other.y), 
+        )
+    }
+    fn max(self, other: Self) -> Self {
+        Self::new(
+            self.x.max(other.x), 
+            self.y.max(other.y), 
+        )
     }
 }
 

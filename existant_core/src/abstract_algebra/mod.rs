@@ -165,7 +165,7 @@ impl<DistributiveOp: Operator, Op: Operator, T> Field<DistributiveOp, Op> for T
 /// Represents an n dimensional tuple of scalars which correspond to a [`Semiring`], 
 /// and has a distributive scalar multiplication operation ×, such that for semimodules 
 /// `B` and `C`, and scalar `a`, then `a × (B + C) = aB + aC`.
-pub trait Semimodule<DistributiveOp: Operator = Multiplication, Op: Operator = Addition> {
+pub trait Semimodule<DistributiveOp: Operator = Multiplication, Op: Operator = Addition>: Copy {
     type Scalar: Semiring<DistributiveOp, Op>;
     fn scalar_multiplication(&self, rhs: Self::Scalar) -> Self;
 }
@@ -183,7 +183,7 @@ impl<DistributiveOp: Operator, Op: Operator, T: Semimodule<DistributiveOp, Op>> 
 
 /// A [`Module`] such that it's scalars are a [`Field`]. This is the space 
 /// usually dealt with in areas such as Linear Algebra.
-pub trait VectorSpace<DistributiveOp: Operator, Op: Operator>: Semimodule<DistributiveOp, Op> 
+pub trait VectorSpace<DistributiveOp: Operator = Multiplication, Op: Operator = Addition>: Semimodule<DistributiveOp, Op> 
     where <Self as Semimodule<DistributiveOp, Op>>::Scalar: Field<DistributiveOp, Op> {
     
 }

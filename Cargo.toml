@@ -7,3 +7,11 @@ edition = "2024"
 bytemuck = "1.25.0"
 existant_core = { path = "existant_core" }
 existant_geoalg = { path = "existant_geoalg" }
+existant_structures = { path = "existant_structures" }
+existant_raster = { path = "existant_raster" }
+image = "0.25.9"
+rand = "0.10.0"
+
+[profile.release]
+opt-level = "z"
+strip = true 

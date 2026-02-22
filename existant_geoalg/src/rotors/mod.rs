@@ -1,6 +1,6 @@
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, Identity, Inverse, Multiplication, Operator};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Identity, Inverse, Multiplication, Operator, Semimodule};
 
-use crate::vectors::{Vector2};
+use crate::vectors::{InnerProductSpace, NormedVectorSpace, Vector2};
 mod quaternion;
 pub use quaternion::*;
 /// Represents a complex number a + bi.
@@ -26,6 +26,28 @@ impl<T: BasicField + core::fmt::Debug> core::fmt::Debug for Complex<T> {
     }
 }
 
+impl<T: BasicField> Semimodule for Complex<T> {
+    type Scalar = T;
+    fn scalar_multiplication(&self, rhs: Self::Scalar) -> Self {
+        Self::new(self.r()*rhs, self.i()*rhs)
+    }
+}
+
+impl<T: BasicField + FloatingPoint> NormedVectorSpace for Complex<T> {
+    fn magnitude(&self) -> Self::Scalar {
+        self.squared_length().sqrt()
+    }
+    fn normalize(&self) -> Self {
+        let magnitude = self.magnitude();
+        Self::new(self.r()/magnitude, self.i()/magnitude)
+    }
+}
+
+impl<T: BasicField + FloatingPoint> InnerProductSpace for Complex<T> {
+    fn inner_product(&self, other: Self) -> Self::Scalar {
+        self.inner.inner_product(other.inner)
+    }
+}
 
 impl<Op: Operator, T: BasicField + ClosedUnder<Op>> ClosedUnder<Op> for Complex<T> {}
 impl<Op: Operator, T: BasicField + Absorption<Op>> Absorption<Op> for Complex<T> {
@@ -75,6 +97,13 @@ impl<T: BasicField> Complex<T>  {
     pub const fn i(&self) -> T {
         self.inner.y
     }
+    pub fn conjugate(self) -> Self {
+        Self::new(self.r(), -self.i())
+    }
+    pub fn from_angle(radians: T) -> Self 
+        where T: FloatingPoint {
+        Self::new(radians.cos(), radians.sin())
+    }
 }
 
 impl<T: BasicField> core::ops::Add for Complex<T> {
@@ -116,5 +145,11 @@ impl<T: BasicField> core::ops::Mul<Quaternion<T>> for Complex<T> {
             self.r()*rhs.j() - self.i()*rhs.k(), 
             self.r()*rhs.k() + self.i()*rhs.j()
         )
+    }
+}
+
+impl<T: BasicField> From<Vector2<T>> for Complex<T> {
+    fn from(value: Vector2<T>) -> Self {
+        Self::new(value.x, value.y)
     }
 }
