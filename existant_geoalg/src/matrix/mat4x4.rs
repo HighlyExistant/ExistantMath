@@ -2,10 +2,10 @@ use core::ops::Index;
 
 
 use bytemuck::{Pod, Zeroable};
-use existant_core::{Addition, AssociativeOver, ClosedUnder, CommutativeOver, Identity, Inverse, Multiplication, Ring, Semimodule, Semiring, Subtraction};
+use existant_core::{Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, FloatingPoint, FromPrimitive, Identity, Inverse, Multiplication, Ring, Semimodule, Subtraction};
 use existant_geoalg_macros::matrix_multiplication;
 
-use crate::{matrix::{Matrix, Matrix2x2, Matrix2x3, Matrix2x4, Matrix3x3, Matrix3x4, Matrix4x3, SquareMatrix}, vectors::{Vector3, Vector4}};
+use crate::{matrix::{Matrix, Matrix2x4, Matrix3x3, Matrix3x4, SquareMatrix}, vectors::{InnerProductSpace, Vector3, Vector4}};
 
 /// Represents a matrix with 4 columns and 4 rows.
 /// ```
@@ -45,7 +45,7 @@ impl<T: Ring> Index<usize> for Matrix4x4<T> {
 }
 impl<T: Ring> core::ops::IndexMut<usize> for Matrix4x4<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let mut val = self.as_mut_slice();
+        let val = self.as_mut_slice();
         &mut val[index]
     }
 }
@@ -204,6 +204,81 @@ impl<T: Ring> Matrix4x4<T> {
     pub const fn new(x: Vector4<T>, y: Vector4<T>, z: Vector4<T>, w: Vector4<T>) -> Self {
         Self { x, y, z, w }
     }
+    /// When dealing with linear transformations such as these, the
+    /// order in which you multiply matters. In this case, if you
+    /// want to translate an object, after using this method, then
+    /// you should multiply the matrix in the lefthand side.
+    /// ``` no_run
+    /// let matrix = Matrix4x4::from_translation(Vector4::new(10, 5, 3, 1));
+    /// let vector = Vector4::new(5, 2, 4, 1);
+    /// assert!(matrix*value==Vector4::new(15, 7, 7, 1));
+    /// ```
+    pub const fn from_translation(v: Vector4<T>) -> Self {
+        Self::new(
+            Vector4::right(),
+            Vector4::top(),
+            Vector4::forward(),
+            v
+        )
+    }
+    pub fn perspective(fov: T, aspect: T, far: T, near: T) -> Self 
+        where T: FloatingPoint {
+        let inv_length = (near-far).recip();
+        let half_fov_tan = fov.mul(T::from_f64(0.5)).tan().recip();
+        let a = half_fov_tan / aspect;
+        let b = (near + far) * inv_length;
+        let c = T::from_f64(2.0)*near*far*inv_length;
+        Self::new(
+            Vector4::new(a, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY), 
+            Vector4::new(<T as Identity<Addition>>::IDENTITY, half_fov_tan, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY), 
+            Vector4::new(<T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, b, <T as Identity<Multiplication>>::IDENTITY), 
+            Vector4::new(<T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, c, <T as Identity<Addition>>::IDENTITY), 
+        )
+        // Self::new(
+        //     Vector4::new(
+        //         (aspect*half_fov_tan).recip(), 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //     ), 
+        //     Vector4::new(
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         half_fov_tan.recip(), 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //     ), 
+        //     Vector4::new(
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         (far)*inv_length, 
+        //         <T as Identity<Multiplication>>::IDENTITY, 
+        //     ), 
+        //     Vector4::new(
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //         -(far*near).div(far_near_diff), 
+        //         <T as Identity<Addition>>::IDENTITY, 
+        //     )
+        // )
+    }
+    pub fn perspective_view(position: Vector3<T>, rotation: Vector3<T>) -> Self 
+        where T: BasicField + FloatingPoint {
+        let c3 = rotation.z().cos();
+        let s3 = rotation.z().sin();
+        let c2 = rotation.x().cos();
+        let s2 = rotation.x().sin();
+        let c1 = rotation.y().cos();
+        let s1 = rotation.y().sin();
+        let u = Vector3::new(c1 * c3 + s1 * s2 * s3, T::from_f64(2.0) * s3, c1 * s2 * s3 - c3 * s1);
+        let v = Vector3::new(c3 * s1 * s2 - c1 * s3, c2 * c3, c1 * c3 * s2 + s1 * s3);
+        let w = Vector3::new(c2 * s1, -s2, c1 * c2);
+        Self::new(
+            Vector4::new(u.x, u.y, u.z, <T as Identity<Addition>>::IDENTITY), 
+            Vector4::new(v.x, v.y, v.z, <T as Identity<Addition>>::IDENTITY), 
+            Vector4::new(w.x, w.y, w.z, <T as Identity<Addition>>::IDENTITY), 
+            Vector4::new(-u.inner_product(position), -v.inner_product(position), -w.inner_product(position), <T as Identity<Multiplication>>::IDENTITY)
+        )
+    }
     pub const fn from_diagonal(diagonal: Vector4<T>) -> Self {
         Self::new(
             Vector4::new(diagonal.x, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY, <T as Identity<Addition>>::IDENTITY), 
@@ -265,6 +340,15 @@ impl<T: Ring> Matrix4x4<T> {
         unsafe { 
             core::slice::from_raw_parts_mut(self as *mut _ as _, 3) 
         }
+    }
+    pub fn derivative_matrix() -> Self 
+        where T: FromPrimitive {
+        Matrix4x4::new(
+            Vector4::new(T::from_u32(0), T::from_u32(0), T::from_u32(0), T::from_u32(0)), 
+            Vector4::new(T::from_u32(0), T::from_u32(1), T::from_u32(0), T::from_u32(0)),
+            Vector4::new(T::from_u32(0), T::from_u32(0), T::from_u32(2), T::from_u32(0)),
+            Vector4::new(T::from_u32(0), T::from_u32(0), T::from_u32(0), T::from_u32(3)),
+        )
     }
 }
 impl<T: Ring + ClosedUnder<Addition>> ClosedUnder<Addition> for Matrix4x4<T> {

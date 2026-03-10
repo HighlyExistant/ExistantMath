@@ -109,6 +109,32 @@ impl<T: Semiring + core::ops::Mul<Output = T>> core::ops::Mul<T> for Matrix2x2<T
         }
     }
 }
+impl<T: Ring + core::ops::Mul<Output = T> + core::ops::Add<Output = T>> core::ops::Mul<Vector2<T>> for Matrix2x2<T>  {
+    /// # Multiplying [`Matrix4x4`] with [`Vector4`]
+    /// 
+    /// when you multiply a [`Matrix4x4`] with a [`Vector4`] we treat the vector
+    /// as a 1x4 matrix * 4x4 matrix.
+    fn mul(self, rhs: Vector2<T>) -> Self::Output {
+        Vector2::<T>::new(
+            self.x.x() * rhs.x() + self.y.x() * rhs.y(),
+            self.x.y() * rhs.x() + self.y.y() * rhs.y(),
+        )
+    }
+    type Output = Vector2<T>;
+}
+impl<T: Ring + core::ops::Mul<Output = T> + core::ops::Add<Output = T>> core::ops::Mul<Matrix2x2<T>> for Vector2<T>  {
+    /// # Multiplying [`Vector4`] with [`Matrix4x4`]
+    /// 
+    /// when you multiply a [`Vector4`] with a [`Matrix4x4`] we treat the vector
+    /// as a 1x4 matrix * 4x4 matrix.
+    fn mul(self, rhs: Matrix2x2<T>) -> Self::Output {
+        Vector2::<T>::new(
+            rhs.x.x() * self.x() + rhs.x.y() * self.y(),
+            rhs.y.x() * self.x() + rhs.y.y() * self.y(),
+        )
+    }
+    type Output = Vector2<T>;
+}
 
 impl<T: Ring + core::ops::Mul<Output = T>> Matrix for Matrix2x2<T> {
     type Vector = Vector2<T>;

@@ -74,6 +74,7 @@ impl<T: BasicField> Ray2D<T>
 
         None
     }
+    /// Not optimized, but it was written fully by me sooo good enough
     pub fn rect_intersection(&self, rect: Rect2D<T>) -> Option<RayIntersection<T>> 
         where T: BasicField + UniversalOperationsOn<T> + FloatingPoint {
         let min = rect.min();
@@ -148,6 +149,7 @@ impl<T: BasicField> Ray2D<T>
         }
         None
     }
+    /// Not optimized, but it was written fully by me sooo good enough
     pub fn is_rect_intersecting(&self, rect: Rect2D<T>) -> bool
         where T: BasicField + UniversalOperationsOn<T> + FloatingPoint {
         let min = rect.min();
@@ -162,8 +164,8 @@ impl<T: BasicField> Ray2D<T>
         let iy1 = self.pos.y + (maxpos.x)*tan;
 
         let perpdir = self.dir.perpendicular();
-
-
+        
+        
         if min.x <= ix0 && ix0 <= max.x {
             let intersect = Vector2::new(ix0, min.y);
             if perpdir.wedge_product(intersect - self.pos) < <T as Identity<Addition>>::IDENTITY {

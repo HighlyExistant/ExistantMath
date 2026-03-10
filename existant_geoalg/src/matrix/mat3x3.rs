@@ -40,7 +40,7 @@ impl<T: Semiring> Index<usize> for Matrix3x3<T> {
 }
 impl<T: Semiring> core::ops::IndexMut<usize> for Matrix3x3<T> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let mut val = self.as_mut_slice();
+        let val = self.as_mut_slice();
         &mut val[index]
     }
 }

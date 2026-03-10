@@ -1,10 +1,17 @@
 use std::ops::{Index, IndexMut};
 
 use bytemuck::{Pod, Zeroable};
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, Bounds, ClosedUnder, CommutativeOver, Distributive, Field, FloatingPoint, FromPrimitive, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, Bounds, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::{rotors::Complex, vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace}};
+use crate::{derivative::Derivative, rotors::Complex, vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace, Vector3, Vector4}};
 
+/// There are various ways of interpreting vector values. Here we represent
+/// those various ways contiguously, which means that this value has a lot of
+/// functions which tend to differ depending on the representation. These 
+/// representations are:
+/// # Magnitude and Direction
+/// For this representation we treat [`Vector2`] as a [`NormedVectorSpace`],
+/// which makes it have the `normalize` as well as the inner and outer products.
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct Vector2<T> {
@@ -136,7 +143,14 @@ impl<T> Vector2<T> {
         where T: Copy {
         self.y
     }
-    
+    pub const fn to_vec3(&self, z: T) -> Vector3<T> 
+        where T: Copy {
+        Vector3::new(self.x, self.y, z)
+    }
+    pub const fn to_vec4(&self, z: T, w: T) -> Vector4<T> 
+        where T: Copy {
+        Vector4::new(self.x, self.y, z, w)
+    }
     /// Returns a vector pointing to the right of the graph <1, 0>
     pub const fn right() -> Self 
         where T: Identity<Multiplication> + Identity<Addition> {
@@ -277,6 +291,18 @@ impl<T: Bounds> Bounds for Vector2<T> {
             self.x.max(other.x), 
             self.y.max(other.y), 
         )
+    }
+}
+
+impl<T: Clone> Derivative for Vector2<T> {
+    type Output = T;
+    /// This represents the vector as a linear equation ax + b,
+    /// and gets its derivative from the power rule. To map each
+    /// component out, the equation would look like:
+    /// * `self.y` -> `a`
+    /// * `self.x` -> `b`
+    fn derive(&self) -> Self::Output {
+        self.y.clone()
     }
 }
 

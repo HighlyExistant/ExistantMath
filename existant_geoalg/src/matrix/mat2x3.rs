@@ -13,6 +13,7 @@ use crate::{matrix::{Matrix, Matrix3x3, Matrix2x2, Matrix3x2}, vectors::{Vector2
 /// ```
 #[matrix_multiplication(columns(x, y), self_rows(x, y), ty(Matrix2x2), output(Matrix2x2))]
 #[matrix_multiplication(self_rows(x, y, z), columns(x, y, z), ty(Matrix3x2), output(Matrix3x3))]
+#[matrix_multiplication(self_rows(x, y, z), columns(x, y, z), ty(Matrix3x3), output(Matrix3x3))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Matrix2x3<T: Semiring> {

@@ -1,7 +1,8 @@
 use bytemuck::{Pod, Zeroable};
 use existant_core::{Ring, Semiring};
+use existant_geoalg_macros::matrix_multiplication;
 
-use crate::{matrix::{Matrix, Matrix3x4}, vectors::Vector4};
+use crate::{matrix::{Matrix, Matrix4x2, Matrix4x4}, vectors::{Vector2, Vector4}};
 
 /// Represents a matrix with 2 columns and 4 rows.
 /// ```
@@ -10,6 +11,7 @@ use crate::{matrix::{Matrix, Matrix3x4}, vectors::Vector4};
 /// │c, g│
 /// └d, h┘
 /// ```
+#[matrix_multiplication(columns(x, y, z, w), self_rows(x, y, z, w), ty(Matrix4x4), output(Matrix4x4))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Matrix2x4<T: Semiring> {
@@ -27,9 +29,14 @@ unsafe impl<T: Semiring + Zeroable + 'static> Pod for Matrix2x4<T> {
 
 impl<T: Ring> Matrix for Matrix2x4<T> {
     type Vector = Vector4<T>;
-    type TransposeMatrix = Self;
+    type TransposeMatrix = Matrix4x2<T>;
     fn transpose(&self) -> Self::TransposeMatrix {
-        Self::new(Vector4::forward(), Vector4::forward())
+        Matrix4x2::new(
+            Vector2::new(self.x.x, self.y.x), 
+            Vector2::new(self.x.y, self.y.y), 
+            Vector2::new(self.x.z, self.y.z), 
+            Vector2::new(self.x.y, self.y.y)
+        )
     }
 }
 

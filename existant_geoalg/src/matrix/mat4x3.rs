@@ -1,6 +1,7 @@
 use bytemuck::{Pod, Zeroable};
 use existant_core::{Addition, Field, Identity, Multiplication, Ring};
-use crate::{matrix::{Matrix, Matrix3x3, Matrix3x4, SolveEquations, SquareMatrix}, vectors::{Vector3, Vector4}};
+use existant_geoalg_macros::matrix_multiplication;
+use crate::{matrix::{Matrix, Matrix3x3, Matrix3x4, Matrix4x4, SolveEquations, SquareMatrix}, vectors::{Vector3, Vector4}};
 
 /// Represents a matrix with 4 columns and 3 rows.
 /// ```
@@ -8,6 +9,7 @@ use crate::{matrix::{Matrix, Matrix3x3, Matrix3x4, SolveEquations, SquareMatrix}
 /// │b, e, h, k│
 /// └c, f, i, l┘
 /// ```
+#[matrix_multiplication(columns(x, y, z, w), self_rows(x, y, z), ty(Matrix4x4), output(Matrix4x3))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Matrix4x3<T: Ring> {

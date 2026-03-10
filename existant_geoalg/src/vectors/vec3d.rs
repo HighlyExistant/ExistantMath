@@ -1,8 +1,8 @@
 use std::ops::{Index, IndexMut};
 
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, FromPrimitive, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace};
+use crate::{derivative::Derivative, vectors::{GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, MetricSpace, NormedVectorSpace, Vector2, Vector4}};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -126,18 +126,28 @@ impl<T> Vector3<T> {
         Self { x, y, z }
     }
     
+    /// x component of a vector <x, y, z>
     pub const fn x(&self) -> T 
         where T: Copy {
         self.x
     }
+    /// y component of a vector <x, y, z>
     pub const fn y(&self) -> T 
         where T: Copy {
         self.y
     }
-    
+    /// z component of a vector <x, y, z>
     pub const fn z(&self) -> T 
         where T: Copy {
         self.z
+    }
+    pub const fn to_vec4(&self, w: T) -> Vector4<T> 
+        where T: Copy {
+        Vector4::new(self.x, self.y, self.z, w)
+    }
+    pub const fn xy(&self) -> Vector2<T> 
+        where T: Copy {
+        Vector2::new(self.x, self.y)
     }
     /// Returns a vector pointing to the right of the graph <1, 0, 0>
     pub const fn right() -> Self 
@@ -224,6 +234,19 @@ impl<T: core::ops::Div<Output = T>> core::ops::Div for Vector3<T> {
 impl<T> From<(T, T, T)> for Vector3<T> {
     fn from(value: (T, T, T)) -> Self {
         Self::new(value.0, value.1, value.2)
+    }
+}
+
+impl<T: BasicField + FromPrimitive> Derivative for Vector3<T> {
+    type Output = Vector2<T>;
+    /// This represents the vector as a linear equation ax^2 + bx + c,
+    /// and gets its derivative from the power rule. To map each
+    /// component out, the equation would look like:
+    /// * `self.z` -> `a`
+    /// * `self.y` -> `b`
+    /// * `self.x` -> `c`
+    fn derive(&self) -> Self::Output {
+        Vector2::new(self.y, self.z*T::from_u32(2))
     }
 }
 

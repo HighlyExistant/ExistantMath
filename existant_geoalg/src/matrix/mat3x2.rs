@@ -2,13 +2,14 @@ use bytemuck::{Pod, Zeroable};
 use existant_core::{Addition, Field, Identity, Multiplication, Ring, Semiring};
 use existant_geoalg_macros::matrix_multiplication;
 
-use crate::{matrix::{Matrix, Matrix2x2, Matrix2x3, SolveEquations, SquareMatrix}, vectors::{Vector2, Vector3}};
+use crate::{matrix::{Matrix, Matrix2x2, Matrix2x3, Matrix3x3, SolveEquations, SquareMatrix}, vectors::{Vector2, Vector3}};
 
 /// Represents a matrix with 3 columns and 2 rows.
 /// ```
 /// ┌a, c, e┐
 /// └b, d, f┘
 /// ```
+#[matrix_multiplication(columns(x, y, z), self_rows(x, y), ty(Matrix3x3), output(Matrix3x2))]
 #[matrix_multiplication(columns(x, y), self_rows(x, y), ty(Matrix2x3), output(Matrix2x2))]
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default)]

@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::matrix::matrix_multiplication_inner;
 
 mod matrix;

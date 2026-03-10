@@ -1,5 +1,5 @@
 use proc_macro2::{Literal, Punct, Span, TokenStream, TokenTree};
-use syn::{Attribute, DeriveInput, Token, Type, parse::Parser, parse_macro_input, punctuated::Punctuated};
+use syn::{DeriveInput, Token, Type, parse::Parser, parse_macro_input, punctuated::Punctuated};
 use quote::{ToTokens, TokenStreamExt, quote};
 
 
@@ -155,10 +155,10 @@ pub fn matrix_multiplication_inner(attr: proc_macro::TokenStream, item: proc_mac
     let mul_info = parse_matrix_mul_info(attr, &structure, &fields);
     
     let name = structure.ident.clone();
-    let parameters = get_parameters(&structure);
-    let generics = structure.generics.clone();
+    // let _parameters = get_parameters(&structure);
+    // let generics = structure.generics.clone();
     
-    let params = generics.params.clone();
+    // let _params = generics.params.clone();
     
     let mul_function = to_mul_function(&fields, &name, &mul_info);
     println!("{}", mul_function.clone());

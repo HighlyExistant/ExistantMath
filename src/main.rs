@@ -1,9 +1,9 @@
+#![allow(unused)]
 use core::f32;
-use std::{ops::Div, time::{Duration, Instant}};
+use std::{fmt::Debug, ops::{Deref, DerefMut, Div, Mul}, time::{Duration, Instant}};
 
-use existant_core::{Addition, BasicField, Field, Module, Multiplication, Operator, Ring, Semiring, VectorSpace};
-use existant_geoalg::{animation::remap, geometry::{FRay2D, LinearSegment2D, Ray2D, Rect2D}, matrix::{FMat4, Matrix2x3, Matrix3x2, Matrix4x4}, rotors::{Complex, Quaternion}, vectors::{FVec2, GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, NormedVectorSpace, Vector2, Vector3, Vector4}};
-use existant_structures::cpu::{BVH2D, RawHeap};
+use existant_core::{Addition, BasicField, Field, Module, Multiplication, Operator, Ring, Semiring, UniversalOperationsOn, VectorSpace};
+use existant_geoalg::{animation::remap, derivative::Derivative, geometry::{FRay2D, LinearSegment2D, Ray2D, Rect2D, Sphere2D, VertexShape}, matrix::{FMat4, Matrix2x2, Matrix2x3, Matrix3x2, Matrix4x4}, rotors::{Complex, Quaternion}, vectors::{FVec2, FVec4, GeometricAlgebra, GrassmanAlgebra, InnerProductSpace, NormedVectorSpace, Vector2, Vector3, Vector4}};
 use image::{ImageBuffer, Rgb, RgbImage, Rgba, RgbaImage};
 
 fn is_vector_space<F: BasicField, T: VectorSpace<Multiplication, Addition, Scalar = F>>(t: T) {
@@ -13,28 +13,55 @@ fn is_module<F: Ring<Multiplication, Addition>, T: Module<Multiplication, Additi
     
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Tagged<T> {
+    value: T,
+    tag: &'static str,
+}
+
+trait Taggable: Sized {
+    fn tag(self, tag: &'static str) -> Tagged<Self> {
+        Tagged { value: self, tag }
+    }
+}
+impl<T, Q> From<Tagged<T>> for Rect2D<Q> 
+    where Rect2D<Q>: From<T>,
+    Q: UniversalOperationsOn<Q> {
+    fn from(value: Tagged<T>) -> Self {
+        Rect2D::<Q>::from(value.value)
+    }
+}
+impl<T> Taggable for T {}
+
+impl<T> Deref for Tagged<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.value
+    }
+}
+impl<T> DerefMut for Tagged<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.value
+    }
+}
+
+impl<T> Debug for Tagged<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.tag)
+    }
+}
+
 fn main() {
-    // let random_rects = (0..254usize).into_iter().map(|i|{
-    //     let rect = Rect2D::new(
-    //         Vector2::new(rand::random_range(10.0..50.0f32), rand::random_range(10.0..50.0)), 
-    //         Vector2::new(rand::random_range(0.0..50.0f32), rand::random_range(0.0..50.0))
-    //     );
-    //     rect
-    // }).collect::<Vec<_>>();
-    // let bvh = BVH2D::new(random_rects);
-    // let option = bvh.traverse(|traverse|{
-    //     match traverse {
-    //         existant_structures::cpu::BVH2DNodeTraverse::Leaf(leaf) => {
-
-    //         }
-    //         existant_structures::cpu::BVH2DNodeTraverse::Node(node) => {
-
-    //         }
-    //     }
-    // });
-    // println!("{}", 256u32.ilog2());
-    // println!("{}", bvh.rects.is_leaf(256));
-    let ray = FRay2D::from_angle(f32::consts::PI.div(4.0), FVec2::new(-1.0, -1.0));
-    let rect = Rect2D::new(FVec2::new(-0.5, -0.500000000), FVec2::new(0.5, 0.5));
-    println!("{:#?}", ray.rect_intersection(rect));
+    let rect = Rect2D::new(FVec2::new(0.0, 0.0), FVec2::new(320.0, 200.0));
+    let perspective = Matrix4x4::perspective(
+        50.0f32.to_radians(), 
+        320.0/200.0, 
+        20.0, 
+        0.1
+    );//*Matrix4x4::perspective_view(Vector3::new(0.0, 0.0, 0.0), Vector3::default());
+    println!("{:#?}", perspective);
+    let point = FVec2::new(12.0, 14.0);
+    println!("{}", point.to_vec4(0.0, 1.0));
+    println!("{}", perspective.mul(point.to_vec4(0.01, 1.0)));
+    println!("{}", perspective.mul(point.to_vec4(0.5, 1.0)));
 }

@@ -4,3 +4,4 @@ pub mod rotors;
 pub mod geometry;
 pub mod animation;
 pub mod mappings;
+pub mod derivative;

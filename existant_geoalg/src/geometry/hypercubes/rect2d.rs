@@ -1,8 +1,6 @@
-use std::ops::Div;
+use existant_core::{Addition, BasicField, Bounds, FloatingPoint, FromPrimitive, Identity, Semigroup, Semimodule, Semiring, UniversalOperationsOn};
 
-use existant_core::{Addition, BasicField, Bounds, FloatingPoint, FromPrimitive, Identity, Semigroup, Semimodule, Semiring, UniversalOperationsOn, VectorSpace};
-
-use crate::{geometry::{Centroid, HyperCube, LinearSegment2D, Polygon, Sphere2D, VertexShape}, vectors::{NormedVectorSpace, Vector2}};
+use crate::{animation::remap, geometry::{Centroid, HyperCube, LinearSegment2D, Shape, Sphere2D, VertexShape}, vectors::{NormedVectorSpace, Vector2}};
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub struct Rect2D<T: UniversalOperationsOn<T>> {
@@ -44,6 +42,13 @@ impl<T: Semigroup<Addition> +  UniversalOperationsOn<T>> Rect2D<T> {
         where T: BasicField {
         self.dimensions == <Vector2<T> as Identity<Addition>>::IDENTITY
     }
+    pub fn normalize_to(&self, min: T, max: T, vector: Vector2<T>) -> Vector2<T> 
+        where T: BasicField {
+        Vector2::new(
+            remap(<T as Identity<Addition>>::IDENTITY, self.width(), min, max, vector.x), 
+            remap(<T as Identity<Addition>>::IDENTITY, self.height(), min, max, vector.y), 
+        )
+    }
     /// Attempts to preserve original size, but if a point
     /// lies outside of the [`Rect2D`], will tightly fit
     /// it into its area.
@@ -77,6 +82,13 @@ impl<T: Semigroup<Addition> +  UniversalOperationsOn<T>> Rect2D<T> {
 }
 
 impl<T: FloatingPoint + BasicField> VertexShape for Rect2D<T> {
+    /// Goes in the order:
+    /// ```
+    ///     4-------3
+    ///     |       |
+    ///     |       |
+    ///     1-------2
+    /// ```
     fn vertices(&self) -> Vec<Self::Vertex> {
         vec![
             Vector2::new(self.pos.x, self.pos.y),
@@ -85,21 +97,45 @@ impl<T: FloatingPoint + BasicField> VertexShape for Rect2D<T> {
             Vector2::new(self.pos.x, self.pos.y+self.dimensions.y),
         ]
     }
-    fn indices(&self, ordering: crate::geometry::PolygonOrdering) -> Vec<u32> {
-        match ordering {
-            crate::geometry::PolygonOrdering::Clockwise => {
-                vec![
-                    0, 2, 1,
-                    2, 0, 3,
-                ]
+    fn indices(&self, ordering: crate::geometry::PolygonOrdering, geometry: crate::geometry::PolygonGeometry) -> Option<Vec<u32>> {
+        Some(match geometry {
+            crate::geometry::PolygonGeometry::Line => {
+                match ordering {
+                    crate::geometry::PolygonOrdering::Clockwise => {
+                        vec![
+                            0, 1,
+                            1, 2,
+                            2, 3,
+                            3, 0
+                        ]
+                    }
+                    crate::geometry::PolygonOrdering::CounterClockwise => {
+                        vec![
+                            0, 3, 
+                            3, 2, 
+                            2, 1, 
+                            1, 0
+                        ]
+                    }
+                }
             }
-            crate::geometry::PolygonOrdering::CounterClockwise => {
-                vec![
-                    0, 1, 2,
-                    2, 3, 0
-                ]
+            crate::geometry::PolygonGeometry::Triangle => {
+                match ordering {
+                    crate::geometry::PolygonOrdering::Clockwise => {
+                        vec![
+                            0, 2, 1,
+                            2, 0, 3,
+                        ]
+                    }
+                    crate::geometry::PolygonOrdering::CounterClockwise => {
+                        vec![
+                            0, 1, 2,
+                            2, 3, 0
+                        ]
+                    }
+                }
             }
-        }
+        })
     }
 }
 
@@ -118,7 +154,7 @@ impl<T: FloatingPoint + BasicField> From<Sphere2D<T>> for Rect2D<T> {
         )
     }
 }
-impl<T: Semiring + UniversalOperationsOn<T>> Polygon for Rect2D<T> {
+impl<T: Semiring + UniversalOperationsOn<T>> Shape for Rect2D<T> {
     type Vertex = Vector2<T>;
 }
 impl<T: Semiring + UniversalOperationsOn<T> + FromPrimitive> Centroid for Rect2D<T> {

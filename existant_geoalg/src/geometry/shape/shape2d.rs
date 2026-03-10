@@ -1,6 +1,6 @@
 use existant_core::{BasicField, VectorSpace};
 
-use crate::geometry::{PolygonOrdering, VertexShape};
+use crate::geometry::{PolygonGeometry, PolygonOrdering, VertexShape};
 
 pub struct Shape2D<V: VectorSpace> 
     where V::Scalar: BasicField {
@@ -16,7 +16,7 @@ impl<V: VectorSpace> Shape2D<V>
         where{
         Self { vertices: vertices.into(), indices: indices.into() }
     }
-    pub fn from_vertices(shape: impl VertexShape<Vertex = V>, ordering: PolygonOrdering) -> Self {
-        Self { vertices: shape.vertices(), indices: shape.indices(ordering) }
+    pub fn from_vertices(shape: impl VertexShape<Vertex = V>, ordering: PolygonOrdering, geometry: PolygonGeometry) -> Option<Self> {
+        Some(Self { vertices: shape.vertices(), indices: shape.indices(ordering, geometry)? })
     }
 }

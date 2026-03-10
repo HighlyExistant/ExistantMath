@@ -1,8 +1,8 @@
 use std::ops::{Index, IndexMut};
 
-use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
+use existant_core::{Absorption, Addition, AssociativeOver, BasicField, ClosedUnder, CommutativeOver, Distributive, FloatingPoint, FromPrimitive, Groupoid, Identity, Inverse, Multiplication, Operator, Semimodule, Semiring};
 
-use crate::{rotors::Quaternion, vectors::{InnerProductSpace, MetricSpace, NormedVectorSpace}};
+use crate::{derivative::Derivative, rotors::Quaternion, vectors::{InnerProductSpace, MetricSpace, NormedVectorSpace, Vector2, Vector3}};
 
 #[repr(C)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -112,24 +112,49 @@ impl<T> Vector4<T> {
     pub const fn new(x: T, y: T, z: T, w: T) -> Self {
         Self { x, y, z, w }
     }
+    pub const fn from_vec2(vector: Vector2<T>, z: T, w: T) -> Self 
+        where T: Copy {
+        vector.to_vec4(z, w)
+    }
+    pub const fn from_vec3(vector: Vector3<T>, w: T) -> Self 
+        where T: Copy {
+        vector.to_vec4(w)
+    }
+    /// creates a [`Vector2`] using the same components
+    pub const fn xy(&self) -> Vector2<T> 
+        where T: Copy {
+        Vector2::new(self.x, self.y)
+    }
+    /// creates a [`Vector3`] using the same components
+    pub const fn xyz(&self) -> Vector3<T> 
+        where T: Copy {
+        Vector3::new(self.x, self.y, self.z)
+    }
+    /// x component of a vector <x, y, z, w>
     pub const fn x(&self) -> T 
         where T: Copy {
         self.x
     }
+    /// y component of a vector <x, y, z, w>
     pub const fn y(&self) -> T 
         where T: Copy {
         self.y
     }
-    
+    /// z component of a vector <x, y, z, w>
     pub const fn z(&self) -> T 
         where T: Copy {
         self.z
     }
+    /// w component of a vector <x, y, z, w>
     pub const fn w(&self) -> T 
         where T: Copy {
         self.w
     }
-    
+    pub fn homogeneous_projection(&self) -> Self 
+        where T: FloatingPoint {
+        let recip = self.w.recip();
+        Self::new(self.x*recip, self.y*recip, self.z*recip, <T as Identity<Multiplication>>::IDENTITY)
+    }
     /// Returns a vector pointing to the right of the graph <1, 0, 0, 0>
     pub const fn right() -> Self 
         where T: Identity<Multiplication> + Identity<Addition> {
@@ -232,6 +257,20 @@ impl<T: BasicField> core::ops::Mul<Quaternion<T>> for Vector4<T> {
     type Output = Vector4<T>;
     fn mul(self, rhs: Quaternion<T>) -> Self::Output {
         Vector4::from(Quaternion::from(self)*rhs)
+    }
+}
+
+impl<T: BasicField + FromPrimitive> Derivative for Vector4<T> {
+    type Output = Vector3<T>;
+    /// This represents the vector as a linear equation ax^3 + bx^2 + cx + d,
+    /// and gets its derivative from the power rule. To map each
+    /// component out, the equation would look like:
+    /// * `self.w` -> `a`
+    /// * `self.z` -> `b`
+    /// * `self.y` -> `c`
+    /// * `self.x` -> `d`
+    fn derive(&self) -> Self::Output {
+        Vector3::new(self.y, self.z*T::from_u32(2), self.w*T::from_u32(3))
     }
 }
 

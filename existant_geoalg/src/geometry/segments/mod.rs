@@ -1,5 +1,5 @@
 mod segment2d;
-use existant_core::{BasicField, Field, VectorSpace};
+use existant_core::{BasicField, VectorSpace};
 pub use segment2d::*;
 
 pub trait Segment<V: VectorSpace> 

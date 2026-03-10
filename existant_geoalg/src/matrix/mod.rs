@@ -4,6 +4,7 @@ mod mat2x3;
 mod mat3x3;
 mod mat3x4;
 mod mat2x4;
+mod mat4x2;
 mod mat4x3;
 mod mat4x4;
 use existant_core::{Module, Ring, Semimodule, Semiring};
@@ -13,6 +14,7 @@ pub use mat2x3::*;
 pub use mat3x3::*;
 pub use mat3x4::*;
 pub use mat2x4::*;
+pub use mat4x2::*;
 pub use mat4x3::*;
 pub use mat4x4::*;
 

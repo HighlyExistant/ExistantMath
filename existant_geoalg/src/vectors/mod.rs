@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut, Sub};
+use std::ops::Sub;
 
 use existant_core::{Addition, BasicField, Bounds, Field, FloatingPoint, FromPrimitive, Identity, Multiplication, Number, Operator, Semimodule, Signed, VectorSpace};
 
@@ -96,6 +96,6 @@ pub fn refract<V: VectorSpace + std::ops::Add<Output = V> + std::ops::Mul<Output
 
 pub fn project<V: VectorSpace + InnerProductSpace + Copy>(vector: V, project_onto: V) -> V 
     where V::Scalar: BasicField {
-    use core::ops::{Mul, Div};
+    use core::ops::Div;
     project_onto.scalar_multiplication(vector.inner_product(project_onto).div(project_onto.squared_length()))
 }

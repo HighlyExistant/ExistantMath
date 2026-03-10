@@ -1,7 +1,3 @@
-use core::ops::{Add, Sub};
-
-use crate::Groupoid;
-
 macro_rules! impl_properties {
     ($structure:tt, $op:tt, $($property:tt),+) => {
         $(
@@ -153,33 +149,32 @@ impl Operator for Subtraction {}
 impl Operator for Multiplication {}
 impl Operator for Division {}
 
-impl_ty_properties!(Addition, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
-impl_ty_properties!(Multiplication, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
-impl_ty_properties!(Subtraction; i8, i16, i32, i64, i128, f32, f64);
+impl_ty_properties!(Addition, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_ty_properties!(Multiplication, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_ty_properties!(Subtraction; i8, i16, i32, i64, i128, isize, f32, f64);
 
-impl_inverse_add!(Addition, i8, i16, i32, i64, i128, f32, f64);
-impl_inverse_add!(Subtraction, i8, i16, i32, i64, i128, f32, f64);
+impl_inverse_add!(Addition, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_inverse_add!(Subtraction, i8, i16, i32, i64, i128, isize, f32, f64);
 impl_inverse_mul!(Multiplication, 1.0, f32, f64);
-
 
 impl ClosedUnder<Division> for f32 {}
 impl ClosedUnder<Division> for f64 {}
 
-impl_distributive!(Multiplication, Addition, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
-impl_distributive!(Multiplication, Subtraction, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
-impl_distributive!(Division, Addition, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
-impl_distributive!(Division, Subtraction, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, f32, f64);
+impl_distributive!(Multiplication, Addition, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_distributive!(Multiplication, Subtraction, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_distributive!(Division, Addition, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_distributive!(Division, Subtraction, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
 
-impl_identity!(0, Addition, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_identity!(0, Addition, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
 impl_identity!(0.0, Addition, f32, f64);
-impl_identity!(0, Subtraction, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_identity!(0, Subtraction, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
 impl_identity!(0.0, Subtraction, f32, f64);
-impl_identity!(1, Multiplication, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_identity!(1, Multiplication, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
 impl_identity!(1.0, Multiplication, f32, f64);
-impl_identity!(1, Division, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_identity!(1, Division, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
 impl_identity!(1.0, Division, f32, f64);
 
-impl_absorption!(0, Multiplication, u8, u16, u32, u64, u128, i8, i16, i32, i64, i128);
+impl_absorption!(0, Multiplication, u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize);
 impl_absorption!(0.0, Multiplication, f32, f64);
 
 
